@@ -612,6 +612,7 @@ gl_loader!(
     fn glFrontFace(mode: GLenum) -> (),
     fn glCullFace(mode: GLenum) -> (),
     fn glGenTextures(n: GLsizei, textures: *mut GLuint) -> (),
+    fn glGenerateMipmap(target: GLenum) -> (),
     fn glReadPixels(
         x: GLint,
         y: GLint,

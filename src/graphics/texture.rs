@@ -189,8 +189,30 @@ impl Texture {
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.wrap as i32);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.wrap as i32);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.filter as i32);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.filter as i32);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.filter as i32);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.filter as i32);
+
+            // Hack to pixelate zooming in while mipmapping zooming out
+            // NOTICE: mipmapping is limited to powers of two in WASM (i.e. webgl)
+            //         so this currently fails with non-power-of-two textures
+            #[cfg(target_family = "wasm")]
+            {
+                // No Mipmaps on WASM
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR as i32);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST as i32);
+            }
+            #[cfg(not(target_family = "wasm"))]
+            {
+                glTexParameteri(
+                    GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR as i32,
+                );
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST as i32);
+
+                glGenerateMipmap(GL_TEXTURE_2D);
+            }
+            // Hack EOF
         }
         ctx.cache.restore_texture_binding(0);
 

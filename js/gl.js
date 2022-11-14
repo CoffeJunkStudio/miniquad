@@ -644,6 +644,9 @@ var importObject = {
         glGenTextures: function (n, textures) {
             _glGenObject(n, textures, "createTexture", GL.textures, "glGenTextures")
         },
+		glGenerateMipmap: function(target) {
+			gl.generateMipmap(target)
+		},
         glActiveTexture: function (texture) {
             gl.activeTexture(texture)
         },
