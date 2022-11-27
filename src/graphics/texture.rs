@@ -142,6 +142,16 @@ impl Texture {
         bytes: Option<&[u8]>,
         params: TextureParams,
     ) -> Texture {
+		Self::new_with_opt(ctx, _access, bytes,params, false)
+	}
+
+    pub fn new_with_opt(
+        ctx: &mut Context,
+        _access: TextureAccess,
+        bytes: Option<&[u8]>,
+        params: TextureParams,
+		smooth: bool
+    ) -> Texture {
         if let Some(bytes_data) = bytes {
             assert_eq!(
                 params.format.size(params.width, params.height) as usize,
@@ -199,7 +209,6 @@ impl Texture {
             {
                 // No Mipmaps on WASM
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR as i32);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST as i32);
             }
             #[cfg(not(target_family = "wasm"))]
             {
@@ -208,10 +217,14 @@ impl Texture {
                     GL_TEXTURE_MIN_FILTER,
                     GL_LINEAR_MIPMAP_LINEAR as i32,
                 );
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST as i32);
 
                 glGenerateMipmap(GL_TEXTURE_2D);
             }
+			if smooth {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR as i32);
+			} else {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST as i32);
+			}
             // Hack EOF
         }
         ctx.cache.restore_texture_binding(0);
